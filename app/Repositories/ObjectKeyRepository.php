@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\ObjectKey;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -14,7 +15,7 @@ use Illuminate\Support\Collection;
  * @since Aug 01, 2025
  * @author Greg Malahito <mgmalahito@gmail.com>
  */
-final class ObjectKeyRepository
+class ObjectKeyRepository
 {
     /**
      * This method should return all objects from the repository.
@@ -55,17 +56,21 @@ final class ObjectKeyRepository
      */
     public function addObject(array $data): ObjectKey
     {
-        if (empty($data['key'])) {
+        $key = array_key_first($data);
+
+        if (empty($key)) {
             throw new \InvalidArgumentException('Object key is required.');
         }
 
-        if (empty($data['value'])) {
+        $keyValue = Arr::get($data, $key);
+
+        if (empty($keyValue)) {
             throw new \InvalidArgumentException('Object value is required.');
         }
 
         $objectKey        = new ObjectKey();
-        $objectKey->key   = $data['key'];
-        $objectKey->value = $data['value'];
+        $objectKey->key   = $key;
+        $objectKey->value = $keyValue;
         $objectKey->save();
 
         return $objectKey;
