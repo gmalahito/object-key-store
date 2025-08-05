@@ -34,18 +34,20 @@ class ObjectKeyRepository
      * @param  int                        $objectKey
      * @param  int|null                   $timestamp
      * @return \App\Models\ObjectKey|null
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findObjectByKey(string $objectKey, ?int $timestamp = null): ?ObjectKey
+    public function findObjectByKey(string $objectKey, ?int $timestamp = null): ObjectKey
     {
         $objectKey = ObjectKey::where('key', $objectKey);
 
         if ($timestamp) {
             $date = Carbon::createFromTimestamp($timestamp);
 
+            $objectKey =
             $objectKey->where('created_at', '<=', $date);
         }
 
-        return $objectKey->first();
+        return $objectKey->orderBy('created_at', 'desc')->firstOrFail();
     }
 
     /**

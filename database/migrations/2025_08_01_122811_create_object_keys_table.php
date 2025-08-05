@@ -15,10 +15,12 @@ return new class extends Migration
     {
         Schema::create('object_keys', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique()->comment('Unique identifier for the object');
+            $table->string('key')->comment(comment: 'Unique identifier for the object');
             $table->text('value')->comment('Value associated with the object key');
             $table->timestamp('created_at')->useCurrent()->comment('Timestamp when the object was created');
             $table->timestamp('updated_at')->useCurrent()->nullable()->comment('Timestamp when the object was last updated');
+
+            $table->unique(['key', 'value'], 'unique_object_key'); // Ensure the key is unique
         });
     }
 

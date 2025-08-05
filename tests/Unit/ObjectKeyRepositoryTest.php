@@ -1,6 +1,7 @@
 <?php
 
 use App\Repositories\ObjectKeyRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(Tests\TestCase::class, RefreshDatabase::class);
@@ -103,22 +104,20 @@ it('can find object by key with timestamp filter', function () {
 });
 
 it('returns null when object not found by key', function () {
-    $found = $this->repository->findObjectByKey('999', null);
-
-    expect($found)->toBeNull();
+    expect(fn () => $this->repository->findObjectByKey('999', null))
+        ->toThrow(ModelNotFoundException::class);
 });
 
 it('returns null when object created after timestamp', function () {
     $this->repository->addObject(['789' => 'test-value-3']);
 
     $pastTimestamp = now()->subHour()->timestamp;
-    $found = $this->repository->findObjectByKey('789', $pastTimestamp);
 
-    expect($found)->toBeNull();
+    expect(fn () => $this->repository->findObjectByKey('789', $pastTimestamp))
+        ->toThrow(ModelNotFoundException::class);
 });
 
 it('returns null when object key not found', function () {
-    $result = $this->repository->findObjectByKey('non-existent-key');
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->repository->findObjectByKey('non-existent-key'))
+        ->toThrow(ModelNotFoundException::class);
 });

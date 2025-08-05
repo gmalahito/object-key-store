@@ -32,7 +32,6 @@ final class GetObjectController extends Controller
     {
         $objectKeys = $objectKeyRepository->getAllObjects($request->query('order', 'asc'));
 
-        // Replace 'ObjectKeyResource' with the actual resource class for your object keys
         return ObjectKeyResource::collection($objectKeys)
             ->response()
             ->setStatusCode(200)
