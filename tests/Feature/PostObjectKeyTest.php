@@ -7,9 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('can create an object successfully', function () {
-    $data = [
-        'test-key-123' => 'some test data'
-    ];
+    $data = [ 'test-key-123' => 'some test data'];
 
     $response = $this->postJson('/api/v1/object-keys', $data);
 
