@@ -4,7 +4,7 @@ on:
   push:
     branches: ["master", "feature/*", "release/*", "develop"]
   pull_request:
-    branches: ["master", "release/*"]
+    branches: ["master", "release/*", "hotfix/*"]
 
 jobs:
   laravel-tests:
