@@ -81,24 +81,10 @@ jobs:
           echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
       - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway up --detach --project ${{ secrets.RAILWAY_SERVICE_ID }}
-
-      - name: Run migrations
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force
-
-      - name: Clear and cache config
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_SERVICE_ID }}
-        run: |
-          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache
-          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan route:cache
-          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan view:cache
+        uses: railwayapp/railway@v1.0.11
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          railway_service: ${{ secrets.RAILWAY_SERVICE_ID }}
 
       - name: Deployment success notification
         run: |
