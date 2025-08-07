@@ -17,10 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('key')->comment(comment: 'Unique identifier for the object');
             $table->text('value')->comment('Value associated with the object key');
+            $table->enum('type', ['string', 'blob'])->default('string')->comment('Type of the value (string or blob)');
             $table->timestamp('created_at')->useCurrent()->comment('Timestamp when the object was created');
             $table->timestamp('updated_at')->useCurrent()->nullable()->comment('Timestamp when the object was last updated');
-
-            $table->unique(['key', 'value'], 'unique_object_key'); // Ensure the key is unique
         });
     }
 

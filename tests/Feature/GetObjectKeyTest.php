@@ -18,15 +18,15 @@ it('can retrieve all object keys', function () {
 
     $response->assertStatus(200)
         ->assertJsonCount(2, 'data')
-        ->assertJsonFragment($objectKeyData1)
-        ->assertJsonFragment($objectKeyData2);
+        ->assertJsonFragment([$objectKeyData1['key1']])
+        ->assertJsonFragment([$objectKeyData2['key2']]);
 
     $response = $this->getJson('/api/v1/object-keys?order=desc');
 
     $response->assertStatus(200)
         ->assertJsonCount(2, 'data')
-        ->assertJsonFragment($objectKeyData2)
-        ->assertJsonFragment($objectKeyData1);
+        ->assertJsonFragment([$objectKeyData2['key2']])
+        ->assertJsonFragment([$objectKeyData1['key1']]);
 });
 
 it('can retrieve a specific object key by its key', function () {
@@ -38,14 +38,16 @@ it('can retrieve a specific object key by its key', function () {
     $response = $this->getJson("/api/v1/object-keys/{$key}");
 
     $response->assertStatus(200)
-        ->assertJsonFragment($objectKeyData);
+        ->assertJsonFragment([$objectKeyData[$key]]);
 });
 
 it('returns 404 when object key not found', function () {
-    $response = $this->getJson('/api/v1/object-keys/non-existent-key');
+    $key = 'non-existent-key';
+
+    $response = $this->getJson("/api/v1/object-keys/{$key}");
 
     $response->assertStatus(404)
-        ->assertJson(['message' => 'Object not found']);
+        ->assertJson(['message' => "Object with key '{$key}' not found."]);
 });
 
 
@@ -67,12 +69,12 @@ it('can retrieve a specific object key by its key with timestamp', function () {
     $response = $this->getJson("/api/v1/object-keys/{$key}?timestamp={$timestamp}");
 
     $response->assertStatus(200)
-        ->assertJsonFragment($objectKeyData1);
+        ->assertJsonFragment([$objectKeyData1[$key]]);
 
     $timestamp = now()->addSeconds(2)->timestamp;
 
     $response = $this->getJson("/api/v1/object-keys/{$key}?timestamp={$timestamp}");
 
     $response->assertStatus(200)
-        ->assertJsonFragment($objectKeyData2);
+        ->assertJsonFragment([$objectKeyData2[$key]]);
 });

@@ -6,8 +6,10 @@ namespace App\Repositories;
 
 use App\Models\ObjectKey;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Carbon;
+use App\DTOs\ObjectKeyStoreDTO;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Repositories\Contracts\ObjectKeyRepositoryInterface;
 
 /**
  * ObjectKeyRepository class
@@ -15,7 +17,7 @@ use Illuminate\Support\Collection;
  * @since Aug 01, 2025
  * @author Greg Malahito <mgmalahito@gmail.com>
  */
-class ObjectKeyRepository
+class ObjectKeyRepository implements ObjectKeyRepositoryInterface
 {
     /**
      * This method should return all objects from the repository.
@@ -23,7 +25,7 @@ class ObjectKeyRepository
      * @param  string                         $order
      * @return \Illuminate\Support\Collection
      */
-    public function getAllObjects(string $order = 'asc'): Collection
+    public function get(string $order = 'asc'): Collection
     {
         return ObjectKey::orderBy('id', $order)->get();
     }
@@ -31,50 +33,38 @@ class ObjectKeyRepository
     /**
      * This method should return a specific object by its key or filter by timestamp.
      *
-     * @param  int                        $objectKey
+     * @param  string                     $objectKey
      * @param  int|null                   $timestamp
      * @return \App\Models\ObjectKey|null
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findObjectByKey(string $objectKey, ?int $timestamp = null): ObjectKey
+    public function findByKey(string $key, ?int $timestamp = null): ObjectKey
     {
-        $objectKey = ObjectKey::where('key', $objectKey);
+        $builder = ObjectKey::latestByKey($key);
 
         if ($timestamp) {
-            $date = Carbon::createFromTimestamp($timestamp);
-
-            $objectKey =
-            $objectKey->where('created_at', '<=', $date);
+            $builder->createdBefore($timestamp);
         }
 
-        return $objectKey->orderBy('created_at', 'desc')->firstOrFail();
+        $objectKey = $builder->first();
+
+        if (!$objectKey) {
+            throw new ModelNotFoundException("Object with key '{$key}' not found.");
+        }
+
+        return $objectKey;
     }
 
     /**
      * This method should add a new object key record.
      *
-     * @param  array                 $data
+     * @param  ObjectKeyStoreDTO $dto
      * @return \App\Models\ObjectKey
      */
-    public function addObject(array $data): ObjectKey
+    public function store(ObjectKeyStoreDTO $dto): ObjectKey
     {
-        $key = array_key_first($data);
+        $dto->validate();
 
-        if (empty($key)) {
-            throw new \InvalidArgumentException('Object key is required.');
-        }
-
-        $keyValue = Arr::get($data, $key);
-
-        if (empty($keyValue)) {
-            throw new \InvalidArgumentException('Object value is required.');
-        }
-
-        $objectKey        = new ObjectKey();
-        $objectKey->key   = $key;
-        $objectKey->value = $keyValue;
-        $objectKey->save();
-
-        return $objectKey;
+        return ObjectKey::create($dto->toArray());
     }
 }

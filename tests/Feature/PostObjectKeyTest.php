@@ -78,7 +78,7 @@ it('returns validation error when value is empty', function () {
 it('handles database errors gracefully', function () {
     // Mock the repository to throw an exception
     $this->mock(\App\Repositories\ObjectKeyRepository::class)
-        ->shouldReceive('addObject')
+        ->shouldReceive('store')
         ->andThrow(new \Exception('Database connection failed'));
 
     $data = ['test-key' => 'test-value'];
@@ -95,21 +95,4 @@ it('returns correct content type header', function () {
     $response = $this->postJson('/api/v1/object-keys', $data);
 
     $response->assertHeader('content-type', 'application/json');
-});
-
-it('does not create duplicate objects with same value', function () {
-    $data = ['duplicate-key' => 'first value'];
-
-    // Create first object
-    $response = $this->postJson('/api/v1/object-keys', $data);
-
-    $response->assertStatus(201);
-
-    // Try to create second object with same value
-    $data['duplicate-key'] = 'first value';
-
-    $response = $this->postJson('/api/v1/object-keys', $data);
-
-    $response->assertStatus(400)
-        ->assertJson(['error' => 'An error occurred while creating the object']);;
 });

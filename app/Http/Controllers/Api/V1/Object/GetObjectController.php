@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Object;
 
 use Illuminate\Http\Request;
+use App\DTOs\ObjectKeyFilterDTO;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Repositories\ObjectKeyRepository;
 use App\Http\Resources\Object\ObjectKeyResource;
+use App\Services\Contracts\ObjectKeyServiceInterface;
+use App\Repositories\Contracts\ObjectKeyRepositoryInterface;
 
 /**
  * GetObjectController class
@@ -19,18 +21,22 @@ use App\Http\Resources\Object\ObjectKeyResource;
  */
 final class GetObjectController extends Controller
 {
+    public function __construct(
+        private readonly ObjectKeyServiceInterface $objectKeyService
+    ) {}
+
     /**
      * This method should return all object keys.
      * It can accept an optional query parameter to specify the order of the results.
      * The default order is ascending.
      *
      * @param  \Illuminate\Http\Request              $request
-     * @param  \App\Repositories\ObjectKeyRepository $objectKeyRepository
      * @return \Illuminate\Http\JsonResponse
      */
-    public function __invoke(Request $request, ObjectKeyRepository $objectKeyRepository): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
-        $objectKeys = $objectKeyRepository->getAllObjects($request->query('order', 'asc'));
+        $dto        = ObjectKeyFilterDTO::fromRequest($request->all());
+        $objectKeys = $this->objectKeyService->getAllObjectKeys($dto);
 
         return ObjectKeyResource::collection($objectKeys)
             ->response()

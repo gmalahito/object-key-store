@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1\Object;
 
 use Illuminate\Http\Request;
+use App\DTOs\ObjectKeyFilterDTO;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use App\Repositories\ObjectKeyRepository;
-use App\Http\Resources\Object\ObjectKeyResource;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Services\Contracts\ObjectKeyServiceInterface;
+use App\Http\Resources\Object\ObjectKeyValueOnlyResource;
 
 /**
  * ShowObjectController class
@@ -19,21 +19,30 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
  */
 final class ShowObjectController extends Controller
 {
-    public function __invoke(Request $request, string $key, ObjectKeyRepository $objectKeyRepository): JsonResponse
+    public function __construct(
+        private readonly ObjectKeyServiceInterface $objectKeyService
+    ) {
+    }
+
+    /**
+     * Handle the request to show a specific object by its key.
+     * It can accept an optional query parameter to specify a timestamp.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  string                   $myKey
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function __invoke(Request $request, string $myKey): JsonResponse
     {
-        try {
-            $timestamp = (int) $request->query('timestamp', null);
+        $dto       = ObjectKeyFilterDTO::fromRequest($request->all(), $myKey);
+        $objectKey = $this->objectKeyService->getObjectByKey($dto);
 
-            $objectKey = $objectKeyRepository->findObjectByKey($key, $timestamp);
+        return response()->json(
+            [
+                'data' => new ObjectKeyValueOnlyResource($objectKey),
+            ],
+            200
+        )->header('Content-Type', 'application/json');
 
-            return response()->json(
-                [
-                    'data' => new ObjectKeyResource($objectKey),
-                ],
-                200
-            )->header('Content-Type', 'application/json');
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['message' => 'Object not found'], 404);
-        }
     }
 }
