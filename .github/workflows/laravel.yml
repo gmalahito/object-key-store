@@ -32,7 +32,12 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: php artisan test --coverage --min=90 --coverage-clover=coverage.xml
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            php artisan test --coverage --min=90 --coverage-clover=coverage.xml --coverage-html=coverage-html
+          else
+            php artisan test
+          fi
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -51,6 +56,32 @@ jobs:
           retention-days: 30
         if: always()
       - name: Coverage check and summary
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            php artisan test --coverage --min=90 --coverage-clover=coverage.xml --coverage-html=coverage-html
+          else
+            php artisan test
+          fi
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        if: github.event_name == 'pull_request'
+        with:
+          file: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          verbose: true
+        continue-on-error: true
+      - name: Upload coverage as artifact
+        uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request'
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            coverage-html/
+          retention-days: 30
+      - name: Coverage check and summary
+        if: github.event_name == 'pull_request'
         run: |
           if [ ! -f coverage.xml ]; then
             echo "❌ Coverage file not found"
