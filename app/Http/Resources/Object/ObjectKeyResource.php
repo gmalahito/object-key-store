@@ -23,10 +23,10 @@ final class ObjectKeyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'key'        => $this->key,
-            'value'      => $this->value,
-            'type'       => $this->type,
-            'created_at' => $this->created_at,
+            'key'        => $this->resource->key,
+            'value'      => $this->resource->value,
+            'type'       => $this->resource->type,
+            'created_at' => $this->resource->created_at,
         ];
     }
 }

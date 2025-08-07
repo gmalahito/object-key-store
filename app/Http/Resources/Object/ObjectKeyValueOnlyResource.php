@@ -18,12 +18,12 @@ final class ObjectKeyValueOnlyResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @return array<string, mixed>
+     * @return array<int, mixed>
      */
     public function toArray(Request $request): array
     {
         return [
-            $this->value,
+            $this->resource->value,
         ];
     }
 }

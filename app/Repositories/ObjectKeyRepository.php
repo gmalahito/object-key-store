@@ -33,14 +33,14 @@ class ObjectKeyRepository implements ObjectKeyRepositoryInterface
     /**
      * This method should return a specific object by its key or filter by timestamp.
      *
-     * @param  string                     $objectKey
+     * @param  string                     $myKey
      * @param  int|null                   $timestamp
      * @return \App\Models\ObjectKey|null
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findByKey(string $key, ?int $timestamp = null): ?ObjectKey
+    public function findByKey(string $myKey, ?int $timestamp = null): ?ObjectKey
     {
-        $builder = ObjectKey::latestByKey($key);
+        $builder = ObjectKey::latestByKey($myKey);
 
         if ($timestamp) {
             $builder->createdBefore($timestamp);
@@ -49,7 +49,7 @@ class ObjectKeyRepository implements ObjectKeyRepositoryInterface
         $objectKey = $builder->first();
 
         if (!$objectKey) {
-            throw new ModelNotFoundException("Object with key '{$key}' not found.");
+            throw new ModelNotFoundException("Object with key '{$myKey}' not found.");
         }
 
         return $objectKey;
