@@ -103,7 +103,6 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const { exec } = require('@actions/exec');
 
             if (!fs.existsSync('coverage.xml')) {
               console.log('Coverage file not found');
