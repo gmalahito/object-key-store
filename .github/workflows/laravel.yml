@@ -14,6 +14,7 @@ jobs:
       - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
         with:
           php-version: "8.2"
+          coverage: xdebug
       - uses: actions/checkout@v4
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
@@ -31,4 +32,16 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: php artisan test
+        run: php artisan test --coverage --min=90 --coverage-clover=coverage.xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
+      - name: Coverage check
+        run: |
+          if [ ! -f coverage.xml ]; then
+            echo "❌ Coverage file not found"
+            exit 1
+          fi
+          echo "✅ 90% code coverage requirement met"
