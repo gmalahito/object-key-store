@@ -7,5 +7,33 @@ healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
+[[deploy.environmentVariables]]
+name = "APP_ENV"
+value = "production"
+
+[[deploy.environmentVariables]]
+name = "APP_DEBUG"
+value = "false"
+
+[[deploy.environmentVariables]]
+name = "LOG_CHANNEL"
+value = "stack"
+
+[[deploy.environmentVariables]]
+name = "LOG_STACK"
+value = "single"
+
+[[deploy.environmentVariables]]
+name = "QUEUE_CONNECTION"
+value = "database"
+
+[[deploy.environmentVariables]]
+name = "SESSION_DRIVER"
+value = "database"
+
+[[deploy.environmentVariables]]
+name = "CACHE_STORE"
+value = "database"
+
 [environments.production]
 variables = { }
