@@ -1,0 +1,197 @@
+{
+	"info": {
+		"_postman_id": "668c30b2-43a9-4492-b1ab-d581cc2cb11b",
+		"name": "ObjectKey",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2095997",
+		"_collection_link": "https://maladevbro.postman.co/workspace/4c990e57-7cff-456d-a688-aa67a8ecdd1b/collection/2095997-668c30b2-43a9-4492-b1ab-d581cc2cb11b?action=share&source=collection_link&creator=2095997"
+	},
+	"item": [
+		{
+			"name": "Live",
+			"item": [
+				{
+					"name": "Get All Keys",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://object-key-gmalahito.up.railway.app/api/v1/object-keys",
+							"protocol": "https",
+							"host": [
+								"object-key-gmalahito",
+								"up",
+								"railway",
+								"app"
+							],
+							"path": [
+								"api",
+								"v1",
+								"object-keys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Store Key",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"0efe6f71-8867-4b3a-b67d-52ef2683424c\": \"New String value\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://object-key-gmalahito.up.railway.app/api/v1/object-keys",
+							"protocol": "https",
+							"host": [
+								"object-key-gmalahito",
+								"up",
+								"railway",
+								"app"
+							],
+							"path": [
+								"api",
+								"v1",
+								"object-keys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show Key",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://object-key-gmalahito.up.railway.app/api/v1/object-keys/0efe6f71-8867-4b3a-b67d-52ef2683424c",
+							"protocol": "https",
+							"host": [
+								"object-key-gmalahito",
+								"up",
+								"railway",
+								"app"
+							],
+							"path": [
+								"api",
+								"v1",
+								"object-keys",
+								"0efe6f71-8867-4b3a-b67d-52ef2683424c"
+							],
+							"query": [
+								{
+									"key": "timestamp",
+									"value": "1754572022",
+									"disabled": true
+								},
+								{
+									"key": "timestamp",
+									"value": "1754572121",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Local",
+			"item": [
+				{
+					"name": "Get All Keys",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://object-key-store.test/api/v1/object-keys",
+							"protocol": "http",
+							"host": [
+								"object-key-store",
+								"test"
+							],
+							"path": [
+								"api",
+								"v1",
+								"object-keys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Store Key",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"0efe6f71-8867-4b3a-b67d-52ef2683424c\": \"New String value\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://object-key-store.test/api/v1/object-keys",
+							"protocol": "http",
+							"host": [
+								"object-key-store",
+								"test"
+							],
+							"path": [
+								"api",
+								"v1",
+								"object-keys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show Key",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://object-key-store.test/api/v1/object-keys/0efe6f71-8867-4b3a-b67d-52ef2683424c",
+							"protocol": "http",
+							"host": [
+								"object-key-store",
+								"test"
+							],
+							"path": [
+								"api",
+								"v1",
+								"object-keys",
+								"0efe6f71-8867-4b3a-b67d-52ef2683424c"
+							],
+							"query": [
+								{
+									"key": "timestamp",
+									"value": "1754572416",
+									"disabled": true
+								},
+								{
+									"key": "timestamp",
+									"value": "1754572121",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
