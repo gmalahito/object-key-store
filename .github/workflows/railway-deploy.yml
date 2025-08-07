@@ -1,0 +1,72 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql, bcmath
+
+      - name: Install Composer dependencies
+        run: composer install --optimize-autoloader --no-dev --no-interaction
+
+      - name: Create production .env
+        run: |
+          echo "APP_NAME=Object Key API" > .env
+          echo "APP_ENV=production" >> .env
+          echo "APP_KEY=${{ secrets.APP_KEY }}" >> .env
+          echo "APP_DEBUG=false" >> .env
+          echo "APP_TIMEZONE=UTC" >> .env
+          echo "APP_URL=${{ secrets.APP_URL }}" >> .env
+          echo "LOG_CHANNEL=stack" >> .env
+          echo "LOG_STACK=single" >> .env
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "QUEUE_CONNECTION=database" >> .env
+          echo "SESSION_DRIVER=database" >> .env
+          echo "CACHE_STORE=database" >> .env
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway login --token $RAILWAY_TOKEN
+          railway up --detach
+
+      - name: Run migrations
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway run php artisan migrate --force
+
+      - name: Clear and cache config
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway run php artisan config:cache
+          railway run php artisan route:cache
+          railway run php artisan view:cache

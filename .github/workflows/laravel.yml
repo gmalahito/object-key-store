@@ -2,9 +2,9 @@ name: Laravel
 
 on:
   push:
-    branches: ["master"]
+    branches: ["master", "feature/*", "release/*", "develop"]
   pull_request:
-    branches: ["master"]
+    branches: ["master", "release/*", "hotfix/*"]
 
 jobs:
   laravel-tests:
@@ -14,6 +14,7 @@ jobs:
       - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
         with:
           php-version: "8.2"
+          coverage: ${{ github.event_name == 'pull_request' && 'xdebug' || 'none' }}
       - uses: actions/checkout@v4
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
@@ -27,8 +28,72 @@ jobs:
         run: |
           mkdir -p database
           touch database/database.sqlite
-      - name: Execute tests (Unit and Feature tests) via PHPUnit/Pest
+      - name: Execute tests
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: php artisan test
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            php artisan test --coverage --min=90 --coverage-clover=coverage.xml --coverage-html=coverage-html
+          else
+            php artisan test
+          fi
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        if: github.event_name == 'pull_request'
+        with:
+          file: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          verbose: true
+        continue-on-error: true
+      - name: Upload coverage as artifact
+        uses: actions/upload-artifact@v4
+        if: github.event_name == 'pull_request'
+        with:
+          name: coverage-report-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            coverage.xml
+            coverage-html/
+          retention-days: 30
+      - name: Coverage check and summary
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ ! -f coverage.xml ]; then
+            echo "❌ Coverage file not found"
+            exit 1
+          fi
+
+          # Extract coverage percentage from clover XML
+          COVERAGE=$(php -r "
+            if (file_exists('coverage.xml')) {
+              \$xml = simplexml_load_file('coverage.xml');
+              \$metrics = \$xml->project->metrics;
+              \$covered = (float)\$metrics['coveredstatements'];
+              \$total = (float)\$metrics['statements'];
+              if (\$total > 0) {
+                \$percentage = round((\$covered / \$total) * 100, 2);
+                echo \$percentage;
+              } else {
+                echo '0';
+              }
+            } else {
+              echo '0';
+            }
+          ")
+
+          echo "✅ Code coverage: ${COVERAGE}%"
+          echo "✅ 90% code coverage requirement met"
+
+          # Add to GitHub summary
+          echo "## 📊 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Coverage | ${COVERAGE}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Minimum Required | 90% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage XML: \`coverage.xml\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage HTML: Available in artifacts" >> $GITHUB_STEP_SUMMARY
