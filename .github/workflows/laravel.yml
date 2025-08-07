@@ -75,7 +75,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: github.event_name == 'pull_request'
         with:
-          name: coverage-report
+          name: coverage-report-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
             coverage.xml
             coverage-html/
