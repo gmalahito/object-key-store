@@ -75,20 +75,27 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
+      - name: Install Railway CLI
+        run: |
+          wget https://github.com/railwayapp/cli/releases/latest/download/railway_linux_amd64.tar.gz
+          tar -xzf railway_linux_amd64.tar.gz
+          sudo mv railway /usr/local/bin/
+          railway --version
+
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway up --detach --service ${{ secrets.RAILWAY_SERVICE_ID }}
+          railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
 
       - name: Run post-deployment commands
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          echo "Waiting for deployment to complete..."
-          sleep 30
-          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force || echo "Migration failed, continuing..."
-          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache || echo "Config cache failed, continuing..."
+          echo "Waiting for deployment to stabilize..."
+          sleep 20
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache
 
       - name: Deployment success notification
         run: |
