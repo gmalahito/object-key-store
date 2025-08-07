@@ -38,7 +38,7 @@ class ObjectKeyRepository implements ObjectKeyRepositoryInterface
      * @return \App\Models\ObjectKey|null
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public function findByKey(string $key, ?int $timestamp = null): ObjectKey
+    public function findByKey(string $key, ?int $timestamp = null): ?ObjectKey
     {
         $builder = ObjectKey::latestByKey($key);
 

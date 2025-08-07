@@ -25,7 +25,7 @@ it('can create an object successfully', function () {
 it('can create an object with blob data', function () {
     $blobData = base64_encode('binary blob data');
     $data     = [
-        'blob-key-456' => $blobData
+        'blob-key-789' => $blobData
     ];
 
     $response = $this->postJson('/api/v1/object-keys', $data);
@@ -34,7 +34,7 @@ it('can create an object with blob data', function () {
         ->assertJson(['message' => 'Object created successfully']);
 
     $this->assertDatabaseHas('object_keys', [
-        'key'   => 'blob-key-456',
+        'key'   => 'blob-key-789',
         'value' => $blobData
     ]);
 });
@@ -95,4 +95,44 @@ it('returns correct content type header', function () {
     $response = $this->postJson('/api/v1/object-keys', $data);
 
     $response->assertHeader('content-type', 'application/json');
+});
+
+it('empty request body should return validation error', function () {
+    $data = [];
+
+    $response = $this->postJson('/api/v1/object-keys', $data);
+
+    $response->assertStatus(422)
+        ->assertJsonStructure(['message', 'errors'])
+         ->assertJson(['message' => 'JSON must contain exactly one key-value pair.']);;
+});
+
+it('multiple request body should return validation error', function () {
+    $data = ['key1' => 'value1', 'key2' => 'value2'];
+
+    $response = $this->postJson('/api/v1/object-keys', $data);
+
+    $response->assertStatus(422)
+        ->assertJsonStructure(['message', 'errors'])
+         ->assertJson(['message' => 'JSON must contain exactly one key-value pair.']);;
+});
+
+it('returns validation error when key is invalid', function () {
+    $data = ['@!' => 'value'];
+
+    $response = $this->postJson('/api/v1/object-keys', $data);
+
+    $response->assertStatus(422)
+        ->assertJsonStructure(['message', 'errors'])
+        ->assertJson(['message' => 'Key must be alphanumeric or contain _ - : .']);
+});
+
+it('returns validation error when value is not a string or array', function () {
+    $data = ['test-key' => 12345];
+
+    $response = $this->postJson('/api/v1/object-keys', $data);
+
+    $response->assertStatus(422)
+        ->assertJsonStructure(['message', 'errors'])
+        ->assertJson(['message' => 'Value must be a string/blob.']);
 });

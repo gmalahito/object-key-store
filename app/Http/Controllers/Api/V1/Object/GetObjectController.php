@@ -9,6 +9,7 @@ use App\DTOs\ObjectKeyFilterDTO;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Object\ObjectKeyResource;
+use App\Http\Resources\Object\ObjectKeyCollection;
 use App\Services\Contracts\ObjectKeyServiceInterface;
 use App\Repositories\Contracts\ObjectKeyRepositoryInterface;
 
@@ -38,7 +39,7 @@ final class GetObjectController extends Controller
         $dto        = ObjectKeyFilterDTO::fromRequest($request->all());
         $objectKeys = $this->objectKeyService->getAllObjectKeys($dto);
 
-        return ObjectKeyResource::collection($objectKeys)
+        return ObjectKeyCollection::make($objectKeys)
             ->response()
             ->setStatusCode(200)
             ->header('Content-Type', 'application/json');

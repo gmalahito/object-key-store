@@ -20,7 +20,7 @@ interface ObjectKeyRepositoryInterface
 
     public function store(ObjectKeyStoreDTO $dto): ObjectKey;
 
-    public function findByKey(string $objectKey, ?int $timestamp = null): ObjectKey;
+    public function findByKey(string $objectKey, ?int $timestamp = null): ?ObjectKey;
 
 
 }
