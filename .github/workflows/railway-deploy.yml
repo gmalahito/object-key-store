@@ -61,6 +61,14 @@ jobs:
         run: |
           railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
 
+      - name: Run post-deployment commands
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache || echo "Config cache may have failed"
+
       - name: Deployment success notification
         run: |
           echo "✅ Deployment successful!"
