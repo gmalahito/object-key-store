@@ -23,10 +23,10 @@ A lightweight version-controlled key-value storage API built with Laravel 12.
 
 | Method | Endpoint                        | Description                            |
 | ------ | ------------------------------- | -------------------------------------- |
-| POST   | `/api/object`                   | Save a new value for a key             |
-| GET    | `/api/object/{key}`             | Get the latest value for a key         |
-| GET    | `/api/object/{key}?timestamp=t` | Get value for key at given timestamp      |
-| GET    | `/api/object`                   | Get all historical versions (all keys) |
+| POST   | `/api/v1/object-keys`                   | Save a new value for a key             |
+| GET    | `/api/v1/object-keys/{key}`             | Get the latest value for a key         |
+| GET    | `/api/v1/object-keys/{key}?timestamp=t` | Get value for key at given timestamp      |
+| GET    | `/api/v1/object-keys`                   | Get all historical versions (all keys) |
 
 ### 1. **POST** `/api/v1/object-keys`
 
