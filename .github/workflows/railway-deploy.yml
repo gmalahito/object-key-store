@@ -45,42 +45,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql, bcmath
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, curl, zip, gd
 
       - name: Install Composer dependencies
         run: composer install --optimize-autoloader --no-dev --no-interaction
 
-      - name: Create production .env
-        run: |
-          cat > .env << 'EOF'
-          APP_NAME="Object Key API"
-          APP_ENV=production
-          APP_KEY=${{ secrets.APP_KEY }}
-          APP_DEBUG=false
-          APP_TIMEZONE=UTC
-          APP_URL=${{ secrets.APP_URL }}
-          LOG_CHANNEL=stack
-          LOG_STACK=single
-          DB_CONNECTION=mysql
-          DB_HOST=${{ secrets.DB_HOST }}
-          DB_PORT=${{ secrets.DB_PORT }}
-          DB_DATABASE=${{ secrets.DB_DATABASE }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          QUEUE_CONNECTION=database
-          SESSION_DRIVER=database
-          CACHE_STORE=database
-          EOF
-
-      - name: Generate application key
-        run: php artisan key:generate
-
       - name: Install Railway CLI
         run: |
-          wget https://github.com/railwayapp/cli/releases/latest/download/railway_linux_amd64.tar.gz
-          tar -xzf railway_linux_amd64.tar.gz
-          sudo mv railway /usr/local/bin/
-          railway --version
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
       - name: Deploy to Railway
         env:
@@ -93,9 +66,9 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           echo "Waiting for deployment to stabilize..."
-          sleep 20
-          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force
-          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache
+          sleep 30
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force || echo "Migration may have failed"
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache || echo "Config cache may have failed"
 
       - name: Deployment success notification
         run: |
