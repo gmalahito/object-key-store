@@ -75,16 +75,11 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
 
-      - name: Install Railway CLI
-        run: |
-          curl -fsSL https://railway.app/install.sh | sh
-          echo "$HOME/.railway/bin" >> $GITHUB_PATH
-
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway up --detach
+          railway up --detach --service ${{ secrets.RAILWAY_SERVICE_ID }}
 
       - name: Run post-deployment commands
         env:
@@ -92,8 +87,8 @@ jobs:
         run: |
           echo "Waiting for deployment to complete..."
           sleep 30
-          railway run php artisan migrate --force || echo "Migration failed, continuing..."
-          railway run php artisan config:cache || echo "Config cache failed, continuing..."
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force || echo "Migration failed, continuing..."
+          railway run --service ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache || echo "Config cache failed, continuing..."
 
       - name: Deployment success notification
         run: |
