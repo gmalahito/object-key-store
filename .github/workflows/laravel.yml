@@ -45,3 +45,11 @@ jobs:
             exit 1
           fi
           echo "✅ 90% code coverage requirement met"
+      - name: Add test results to summary
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All tests passed with 90% code coverage requirement met" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "Coverage file: \`coverage.xml\`" >> $GITHUB_STEP_SUMMARY
+          echo "Minimum coverage: 90%" >> $GITHUB_STEP_SUMMARY
