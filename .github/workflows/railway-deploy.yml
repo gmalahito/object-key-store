@@ -84,21 +84,21 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway up --detach
+          railway up --detach --project ${{ secrets.RAILWAY_SERVICE_ID }}
 
       - name: Run migrations
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway run php artisan migrate --force
+          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan migrate --force
 
       - name: Clear and cache config
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_SERVICE_ID }}
         run: |
-          railway run php artisan config:cache
-          railway run php artisan route:cache
-          railway run php artisan view:cache
+          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan config:cache
+          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan route:cache
+          railway run --project ${{ secrets.RAILWAY_SERVICE_ID }} php artisan view:cache
 
       - name: Deployment success notification
         run: |
